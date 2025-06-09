@@ -1,0 +1,12 @@
+## Interface: 110100
+## Version: 11.1
+## Title: Fizzwidget PartyTime
+## Author: Gazmik Fizzwidget
+## Notes: Things to help with playing together
+## Category: User Interface
+
+PartyTime.lua
+
+Settings.lua
+
+Localization.lua
