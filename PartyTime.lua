@@ -22,5 +22,21 @@ end })
 local Events = T.EventHandlers
 
 ------------------------------------------------------
--- Constants
+-- Addon message passing
 ------------------------------------------------------
+
+function T.HandleAddonMessage(self, prefix, message, channel, sender)
+    if prefix ~= addonName then return end
+    
+    print(prefix, message, channel, sender)
+end
+
+C_ChatInfo.RegisterAddonMessagePrefix(addonName)
+EventRegistry:RegisterFrameEventAndCallback("CHAT_MSG_ADDON", T.HandleAddonMessage)
+
+function T.TestMessage(text, channel)
+    if not channel then
+        channel = "PARTY"
+    end
+    C_ChatInfo.SendAddonMessage(addonName, text, channel)
+end
