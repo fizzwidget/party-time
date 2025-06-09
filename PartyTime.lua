@@ -28,13 +28,16 @@ local Events = T.EventHandlers
 function T.HandleAddonMessage(self, prefix, message, channel, sender)
     if prefix ~= addonName then return end
     
-    print(prefix, message, channel, sender)
+    message = C_ChatInfo.ReplaceIconAndGroupExpressions(message);
+    
+    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["WHISPER"]);
+    PlaySound(SOUNDKIT.RAID_WARNING);
 end
 
 C_ChatInfo.RegisterAddonMessagePrefix(addonName)
 EventRegistry:RegisterFrameEventAndCallback("CHAT_MSG_ADDON", T.HandleAddonMessage)
 
-function T.TestMessage(text, channel)
+function m(text, channel)
     if not channel then
         channel = "PARTY"
     end
