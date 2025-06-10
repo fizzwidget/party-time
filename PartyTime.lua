@@ -28,10 +28,11 @@ local Events = T.EventHandlers
 function T.HandleAddonMessage(self, prefix, message, channel, sender)
     if prefix ~= addonName then return end
     
+    -- TODO keep {star}, {rt1}, etc substitution?
     message = C_ChatInfo.ReplaceIconAndGroupExpressions(message);
     
-    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["WHISPER"]);
-    PlaySound(SOUNDKIT.RAID_WARNING);
+    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["WHISPER"])
+    PlaySound(SOUNDKIT.RAID_WARNING)
 end
 
 C_ChatInfo.RegisterAddonMessagePrefix(addonName)
