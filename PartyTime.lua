@@ -29,7 +29,7 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
     if prefix ~= addonName then return end
     
     -- TODO keep {star}, {rt1}, etc substitution?
-    message = C_ChatInfo.ReplaceIconAndGroupExpressions(message);
+    message = C_ChatInfo.ReplaceIconAndGroupExpressions(message)
     
     RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["WHISPER"])
     PlaySound(SOUNDKIT.RAID_WARNING)
@@ -38,9 +38,10 @@ end
 C_ChatInfo.RegisterAddonMessagePrefix(addonName)
 EventRegistry:RegisterFrameEventAndCallback("CHAT_MSG_ADDON", T.HandleAddonMessage)
 
-function m(text, channel)
-    if not channel then
-        channel = "PARTY"
-    end
-    C_ChatInfo.SendAddonMessage(addonName, text, channel)
+function T.ChatCommandHandler(text)
+    C_ChatInfo.SendAddonMessage(addonName, text, "PARTY")
 end
+
+SLASH_PARTYTIME1 = "/pt"
+SLASH_PARTYTIME1 = "/pw"
+SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
