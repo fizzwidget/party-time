@@ -43,5 +43,5 @@ function T.ChatCommandHandler(text)
 end
 
 SLASH_PARTYTIME1 = "/pt"
-SLASH_PARTYTIME1 = "/pw"
+SLASH_PARTYTIME2 = "/pw"
 SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
