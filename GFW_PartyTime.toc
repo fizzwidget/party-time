@@ -4,9 +4,12 @@
 ## Author: Gazmik Fizzwidget
 ## Notes: Things to help with playing together
 ## Category: User Interface
+## SavedVariables: GFW_PartyTime_Settings
+## LoadSavedVariablesFirst: 1
 
 PartyTime.lua
 
 Settings.lua
 
 Localization.lua
+
