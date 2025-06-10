@@ -90,10 +90,14 @@ end
 
 function S:Initialize()
     self.category, self.layout = Settings.RegisterVerticalLayoutCategory(T.Title)
-    self.table = T.Settings
+    self.table = _G[addonName .. "_Settings"] or {}
+    T.Settings = self.table
     T.SettingsCategoryID = self.category:GetID()
     
 
     Settings.RegisterAddOnCategory(self.category)
 
 end
+
+
+S:Initialize()
