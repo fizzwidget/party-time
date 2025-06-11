@@ -9,12 +9,12 @@ local L = _G[addonName.."_Locale"]
 
 function S:Checkbox(settingKey, defaultValue, parentInit, onValueChanged)
     local variable = addonName .. "_" .. settingKey
-    local labelText = L.Setting[settingKey]
+    local labelText = L.Setting[settingKey] or settingKey
     local setting = Settings.RegisterAddOnSetting(
         self.category, 
         variable, 
         settingKey, 
-        self.table,
+        T.Settings,
         type(defaultValue), 
         labelText, 
         defaultValue
@@ -36,14 +36,14 @@ end
 function S:CheckboxDropdown(checkSettingKey, checkDefault, menuSettingKey, menuDefault, menuOptions)
     -- Blizz UI allows separate label/tooltip for the checkbox and dropdown but they always keep both same
     -- we'll follow that by using the checkbox key to get the same label/tooltip text for both
-    local labelText = L.Setting[checkSettingKey]
+    local labelText = L.Setting[checkSettingKey] or checkSettingKey
     local tooltipText = L.SettingTooltip[checkSettingKey]
     local checkVariable = addonName .. "_" .. checkSettingKey
     local checkSetting = Settings.RegisterAddOnSetting(
         self.category, 
         checkVariable, 
         checkSettingKey, 
-        self.table,
+        T.Settings,
         type(checkDefault), 
         labelText, 
         checkDefault
@@ -53,7 +53,7 @@ function S:CheckboxDropdown(checkSettingKey, checkDefault, menuSettingKey, menuD
         self.category, 
         menuVariable,
         menuSettingKey,
-        self.table,
+        T.Settings,
         type(menuDefault),
         labelText,
         menuDefault
@@ -90,14 +90,19 @@ end
 
 function S:Initialize()
     self.category, self.layout = Settings.RegisterVerticalLayoutCategory(T.Title)
-    self.table = _G[addonName .. "_Settings"] or {}
-    T.Settings = self.table
+    if not _G[addonName .. "_Settings"] then
+        _G[addonName .. "_Settings"] = {}
+    end
+    T.Settings = _G[addonName .. "_Settings"]
     T.SettingsCategoryID = self.category:GetID()
     
-
+    if T.SetupSettings then
+        T.SetupSettings(T.SettingsUI)
+    else
+        error("addonTable missing function SetupSettings")
+    end
+    
     Settings.RegisterAddOnCategory(self.category)
-
 end
-
 
 S:Initialize()
