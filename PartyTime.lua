@@ -22,6 +22,14 @@ end })
 local Events = T.EventHandlers
 
 ------------------------------------------------------
+-- Settings UI
+------------------------------------------------------
+
+function T.SetupSettings(settings)
+    settings:Checkbox("Memory", true)
+end
+
+------------------------------------------------------
 -- Addon message passing
 ------------------------------------------------------
 
@@ -45,3 +53,40 @@ end
 SLASH_PARTYTIME1 = "/pt"
 SLASH_PARTYTIME2 = "/pw"
 SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
+
+
+------------------------------------------------------
+-- Target marker detection
+------------------------------------------------------
+
+local units = {"player", "party1", "party2", "party3", "party4"}
+
+if not GFW_PartyTime_SavedPresets then
+    GFW_PartyTime_SavedPresets = {}
+end
+
+function MarkerFromIndex(index)
+    return C_ChatInfo.ReplaceIconAndGroupExpressions(string.format("{rt%d}", index))
+end
+
+function T.SetRaidTarget(unit, index)
+    print(UnitName(unit), MarkerFromIndex(index))
+    GFW_PartyTime_SavedPresets[UnitName(unit)] = index
+end
+
+function T.AutoSetPartySymbols()
+    for i, unit in pairs(units) do
+        if UnitExists(unit) then
+            local preset = GFW_PartyTime_SavedPresets[UnitName(unit)]
+            if preset then
+                SetRaidTarget(unit, preset)
+            end
+        end
+    end
+end
+
+function Events:GROUP_ROSTER_UPDATE()
+    T.AutoSetPartySymbols()
+end
+
+hooksecurefunc("SetRaidTarget", T.SetRaidTarget)

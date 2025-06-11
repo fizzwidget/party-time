@@ -13,8 +13,8 @@ local L = Locale.Text
 local S = Locale.Setting
 local T = Locale.SettingTooltip
 ------------------------------------------------------
-
-
+S.Memory = "Save markers per player"
+T.Memory = "Remembers the target marker you set on each player"
 ------------------------------------------------------
 
 if (GetLocale() == "frFR") then
