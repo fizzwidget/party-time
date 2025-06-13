@@ -22,21 +22,26 @@ end })
 local Events = T.EventHandlers
 
 ------------------------------------------------------
--- Settings UI
+-- Saved variables & settings UI
 ------------------------------------------------------
 
 function T.SetupSettings(settings)
     settings:Checkbox("Memory", true)
 end
 
+if not _G[addonName.."_SavedPresets"] then
+    _G[addonName.."_SavedPresets"] = {}
+end
+T.SavedPresets = _G[addonName.."_SavedPresets"]
+
 ------------------------------------------------------
--- Addon message passing
+-- Party warning "chat channel"
 ------------------------------------------------------
 
 function T.HandleAddonMessage(self, prefix, message, channel, sender)
     if prefix ~= addonName then return end
     
-    -- TODO keep {star}, {rt1}, etc substitution?
+    -- keep {star}, {rt1}, etc substitution like chat channels
     message = C_ChatInfo.ReplaceIconAndGroupExpressions(message)
     
     RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["WHISPER"])
@@ -56,28 +61,20 @@ SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
 
 
 ------------------------------------------------------
--- Target marker detection
+-- Save & restore target markers
 ------------------------------------------------------
 
 local units = {"player", "party1", "party2", "party3", "party4"}
 
-if not GFW_PartyTime_SavedPresets then
-    GFW_PartyTime_SavedPresets = {}
+local function MarkerFromIndex(index)
+    return C_ChatInfo.ReplaceIconAndGroupExpressions(("{rt%d}"):format(index))
 end
 
-function MarkerFromIndex(index)
-    return C_ChatInfo.ReplaceIconAndGroupExpressions(string.format("{rt%d}", index))
-end
-
-function T.SetRaidTarget(unit, index)
-    print(UnitName(unit), MarkerFromIndex(index))
-    GFW_PartyTime_SavedPresets[UnitName(unit)] = index
-end
-
+-- set saved markers (if any) for party members
 function T.AutoSetPartySymbols()
     for i, unit in pairs(units) do
         if UnitExists(unit) then
-            local preset = GFW_PartyTime_SavedPresets[UnitName(unit)]
+            local preset = T.SavedPresets[UnitName(unit)]
             if preset then
                 SetRaidTarget(unit, preset)
             end
@@ -89,4 +86,10 @@ function Events:GROUP_ROSTER_UPDATE()
     T.AutoSetPartySymbols()
 end
 
+-- save assigned marker whenever one is set on a unit
+-- TODO should we save markers only for certain units (is a player, in party, etc?)
+function T.SetRaidTarget(unit, index)
+    --print("saving", MarkerFromIndex(index), "for", UnitName(unit))
+    GFW_PartyTime_SavedPresets[UnitName(unit)] = index
+end
 hooksecurefunc("SetRaidTarget", T.SetRaidTarget)
