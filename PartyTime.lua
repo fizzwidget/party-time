@@ -90,6 +90,6 @@ end
 -- TODO should we save markers only for certain units (is a player, in party, etc?)
 function T.SetRaidTarget(unit, index)
     --print("saving", MarkerFromIndex(index), "for", UnitName(unit))
-    GFW_PartyTime_SavedPresets[UnitName(unit)] = index
+    T.SavedPresets[UnitName(unit)] = index
 end
 hooksecurefunc("SetRaidTarget", T.SetRaidTarget)
