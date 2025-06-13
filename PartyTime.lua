@@ -75,21 +75,29 @@ function T.AutoSetPartySymbols()
     for i, unit in pairs(units) do
         if UnitExists(unit) then
             local preset = T.SavedPresets[UnitName(unit)]
-            if preset then
+            if preset and T.Settings.Memory then
                 SetRaidTarget(unit, preset)
+            else
+                CancelSave = true
+                SetRaidTarget(unit, i)
             end
         end
     end
 end
 
 function Events:GROUP_ROSTER_UPDATE()
-    T.AutoSetPartySymbols()
+    if true then
+        T.AutoSetPartySymbols()
+    end
 end
 
 -- save assigned marker whenever one is set on a unit
 -- TODO should we save markers only for certain units (is a player, in party, etc?)
 function T.SetRaidTarget(unit, index)
-    --print("saving", MarkerFromIndex(index), "for", UnitName(unit))
-    T.SavedPresets[UnitName(unit)] = index
+    if not CancelSave then
+        --print("saving", MarkerFromIndex(index), "for", UnitName(unit))
+        T.SavedPresets[UnitName(unit)] = index
+    end
+    CancelSave = false
 end
 hooksecurefunc("SetRaidTarget", T.SetRaidTarget)
