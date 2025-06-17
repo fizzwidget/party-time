@@ -78,7 +78,7 @@ function T.AutoSetPartySymbols()
             if preset and T.Settings.Memory then
                 SetRaidTarget(unit, preset)
             else
-                CancelSave = true
+                CancelNextSave = true
                 SetRaidTarget(unit, i)
             end
         end
@@ -86,7 +86,7 @@ function T.AutoSetPartySymbols()
 end
 
 function Events:GROUP_ROSTER_UPDATE()
-    if true then
+    if --[[T.Settings.Autoapply and ]]UnitLeadsAnyGroup("player") then
         T.AutoSetPartySymbols()
     end
 end
@@ -94,10 +94,25 @@ end
 -- save assigned marker whenever one is set on a unit
 -- TODO should we save markers only for certain units (is a player, in party, etc?)
 function T.SetRaidTarget(unit, index)
-    if not CancelSave then
+    if not CancelNextSave and T.Settings.RememberMenuMarkers then
         --print("saving", MarkerFromIndex(index), "for", UnitName(unit))
         T.SavedPresets[UnitName(unit)] = index
     end
-    CancelSave = false
+    CancelNextSave = false
 end
 hooksecurefunc("SetRaidTarget", T.SetRaidTarget)
+
+function menu(owner, rootDescription, contextData)
+    local function IsSelected()
+        return T.Settings.RememberMenuMarkers
+    end
+    local function SetSelected()
+        T.Settings.RememberMenuMarkers = not T.Settings.RememberMenuMarkers
+    end
+    rootDescription:CreateDivider();
+    rootDescription:CreateTitle("PartyTime");
+    rootDescription:CreateCheckbox("Remember Target Marker", IsSelected, SetSelected)
+end
+
+Menu.ModifyMenu("MENU_UNIT_SELF", menu)
+Menu.ModifyMenu("MENU_UNIT_PARTY", menu)
