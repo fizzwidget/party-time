@@ -65,7 +65,6 @@ SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
 -- Save & restore target markers
 ------------------------------------------------------
 
-local units = {"player", "party1", "party2", "party3", "party4"}
 
 local function MarkerFromIndex(index)
     return C_ChatInfo.ReplaceIconAndGroupExpressions(("{rt%d}"):format(index))
@@ -73,19 +72,26 @@ end
 
 -- set saved markers (if any) for party members
 function T.AutoSetPartySymbols()
-    for i, unit in pairs(units) do
-        if UnitExists(unit) then
-            local preset = T.SavedPresets[UnitName(unit)]
-            if preset and T.Settings.Memory then
-                SetRaidTarget(unit, preset)
-            else
-                CancelNextSave = true
-                SetRaidTarget(unit, i)
-            end
-        end
-    end
+   local units = {"player", "party1", "party2", "party3", "party4"}
+   local unitMarkers = {}
+   local nextFreeMarker = 0
+   for _, unit in pairs(units) do
+      if UnitExists(unit) then
+         local preset = T.SavedPresets[UnitName(unit)]
+         if preset and T.Settings.Memory then
+            SetRaidTarget(unit, preset)
+            unitMarkers[preset] = unit
+            --print("setting unitMarkers", preset, unit)
+         else
+            CancelNextSave = true
+            repeat  
+               nextFreeMarker = nextFreeMarker + 1
+            until not unitMarkers[nextFreeMarker]
+            SetRaidTarget(unit, nextFreeMarker)
+         end
+      end
+   end
 end
-
 function Events:GROUP_ROSTER_UPDATE()
     if T.Settings.Autoapply and UnitLeadsAnyGroup("player") then
         T.AutoSetPartySymbols()
