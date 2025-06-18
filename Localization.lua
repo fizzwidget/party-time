@@ -15,6 +15,8 @@ local T = Locale.SettingTooltip
 ------------------------------------------------------
 S.Memory = "Save markers per player"
 T.Memory = "Remembers the target marker you set on each player"
+S.Autoapply = "Automatically set markers"
+T.Autoapply = "Sets saved markers for known players and defaults based on party position if they are unknown"
 ------------------------------------------------------
 
 if (GetLocale() == "frFR") then

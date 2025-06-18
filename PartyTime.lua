@@ -27,6 +27,7 @@ local Events = T.EventHandlers
 
 function T.SetupSettings(settings)
     settings:Checkbox("Memory", true)
+    settings:Checkbox("Autoapply", true)
 end
 
 if not _G[addonName.."_SavedPresets"] then
@@ -86,7 +87,7 @@ function T.AutoSetPartySymbols()
 end
 
 function Events:GROUP_ROSTER_UPDATE()
-    if --[[T.Settings.Autoapply and ]]UnitLeadsAnyGroup("player") then
+    if T.Settings.Autoapply and UnitLeadsAnyGroup("player") then
         T.AutoSetPartySymbols()
     end
 end
