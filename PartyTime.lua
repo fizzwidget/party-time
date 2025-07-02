@@ -40,20 +40,44 @@ T.SavedPresets = _G[addonName.."_SavedPresets"]
 ------------------------------------------------------
 
 function T.HandleAddonMessage(self, prefix, message, channel, sender)
-    if prefix ~= addonName then return end
+   if prefix ~= addonName then return end
+   
+   print(prefix, message, channel, sender)
+   local id, text = strmatch(message, "(.)|(.+)")
+   if id == "W" then
+      -- keep {star}, {rt1}, etc substitution like chat channels
+      text = C_ChatInfo.ReplaceIconAndGroupExpressions(text)
+      RaidNotice_AddMessage(RaidWarningFrame, text, ChatTypeInfo["WHISPER"])
+      PlaySound(SOUNDKIT.RAID_WARNING)
     
-    -- keep {star}, {rt1}, etc substitution like chat channels
-    message = C_ChatInfo.ReplaceIconAndGroupExpressions(message)
-    
-    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["WHISPER"])
-    PlaySound(SOUNDKIT.RAID_WARNING)
+   elseif id == "I" then
+      print(text, sender)
+      local name, server = strsplit("-", sender)
+      for index = 1, 4 do
+         local unit = "party"..index
+         if not UnitExists(unit) then break end
+         if UnitName(unit) == name then
+            if text == "START" then
+               -- TODO show icon
+               print(unit, "is in a movie")
+            elseif text == "STOP" then
+               -- TODO hide icon
+               print(unit, "is no longer in a movie")         
+            end
+            break
+         end
+      end
+      
+   end
+
 end
 
 C_ChatInfo.RegisterAddonMessagePrefix(addonName)
+
 EventRegistry:RegisterFrameEventAndCallback("CHAT_MSG_ADDON", T.HandleAddonMessage)
 
 function T.ChatCommandHandler(text)
-    C_ChatInfo.SendAddonMessage(addonName, text, "PARTY")
+    C_ChatInfo.SendAddonMessage(addonName, "W|"..text, "PARTY")
 end
 
 SLASH_PARTYTIME1 = "/pt"
@@ -123,3 +147,47 @@ end
 
 Menu.ModifyMenu("MENU_UNIT_SELF", menu)
 Menu.ModifyMenu("MENU_UNIT_PARTY", menu)
+
+------------------------------------------------------
+-- Show when party members in movie/cinematic
+------------------------------------------------------
+
+function Events:CINEMATIC_START()
+   C_ChatInfo.SendAddonMessage(addonName, "I|START", "PARTY")
+   print("CINEMATIC_START")
+end
+
+function Events:CINEMATIC_STOP(...)
+   C_ChatInfo.SendAddonMessage(addonName, "I|STOP", "PARTY")
+   print("CINEMATIC_STOP")
+end
+
+function Events:PLAY_MOVIE(...)
+   C_ChatInfo.SendAddonMessage(addonName, "I|START", "PARTY")
+   print("PLAY_MOVIE")
+end
+
+function Events:STOP_MOVIE(...)
+   C_ChatInfo.SendAddonMessage(addonName, "I|STOP", "PARTY")
+   print("STOP_MOVIE")
+end
+
+-- TEMP
+function T.MakePartyIcon()   
+   local parent = PartyFrame.MemberFrame1
+   local frame = CreateFrame("Frame", nil, parent)
+   frame:SetAllPoints(parent.Portrait)
+   local texture = frame:CreateTexture()
+   texture:SetAllPoints()
+   
+   --local icon = "Interface\\Icons\\Inv_misc_film_01"
+   local icon = "Interface\\Icons\\spell_nature_timestop"
+   texture:SetTexture(icon)
+   
+   frame:SetScript("OnEnter", function()
+      GameTooltip:SetOwner(frame, "ANCHOR_BOTTOM")
+      GameTooltip:SetText("Watching a movie")x
+      GameTooltip:Show()
+   end)
+   frame:SetScript("OnLeave", GameTooltip_Hide)
+end
