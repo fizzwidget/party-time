@@ -41,8 +41,6 @@ T.SavedPresets = _G[addonName.."_SavedPresets"]
 
 function T.HandleAddonMessage(self, prefix, message, channel, sender)
    if prefix ~= addonName then return end
-   
-   print(prefix, message, channel, sender)
    local id, text = strmatch(message, "(.)|(.+)")
    if id == "W" then
       -- keep {star}, {rt1}, etc substitution like chat channels
@@ -51,18 +49,15 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
       PlaySound(SOUNDKIT.RAID_WARNING)
     
    elseif id == "I" then
-      print(text, sender)
       local name, server = strsplit("-", sender)
       for index = 1, 4 do
          local unit = "party"..index
          if not UnitExists(unit) then break end
          if UnitName(unit) == name then
             if text == "START" then
-               -- TODO show icon
-               print(unit, "is in a movie")
+               T.ShowPartyMovieIcon(index)
             elseif text == "STOP" then
-               -- TODO hide icon
-               print(unit, "is no longer in a movie")         
+               T.HidePartyMovieIcon(index)         
             end
             break
          end
@@ -154,40 +149,54 @@ Menu.ModifyMenu("MENU_UNIT_PARTY", menu)
 
 function Events:CINEMATIC_START()
    C_ChatInfo.SendAddonMessage(addonName, "I|START", "PARTY")
-   print("CINEMATIC_START")
 end
 
 function Events:CINEMATIC_STOP(...)
    C_ChatInfo.SendAddonMessage(addonName, "I|STOP", "PARTY")
-   print("CINEMATIC_STOP")
 end
 
 function Events:PLAY_MOVIE(...)
    C_ChatInfo.SendAddonMessage(addonName, "I|START", "PARTY")
-   print("PLAY_MOVIE")
 end
 
 function Events:STOP_MOVIE(...)
    C_ChatInfo.SendAddonMessage(addonName, "I|STOP", "PARTY")
-   print("STOP_MOVIE")
 end
 
--- TEMP
-function T.MakePartyIcon()   
-   local parent = PartyFrame.MemberFrame1
+T.Icons = {}
+
+function T.MakePartyMovieIcon(index)   
+   local parent = PartyFrame["MemberFrame"..index]
    local frame = CreateFrame("Frame", nil, parent)
    frame:SetAllPoints(parent.Portrait)
    local texture = frame:CreateTexture()
    texture:SetAllPoints()
    
-   --local icon = "Interface\\Icons\\Inv_misc_film_01"
-   local icon = "Interface\\Icons\\spell_nature_timestop"
+   local icon = "Interface\\Icons\\Inv_misc_film_01"
    texture:SetTexture(icon)
    
    frame:SetScript("OnEnter", function()
       GameTooltip:SetOwner(frame, "ANCHOR_BOTTOM")
-      GameTooltip:SetText("Watching a movie")x
+      GameTooltip:SetText("Watching a movie")
       GameTooltip:Show()
    end)
    frame:SetScript("OnLeave", GameTooltip_Hide)
+   T.Icons[index] = frame
+   return frame
+end
+
+function T.ShowPartyMovieIcon(index)
+   local frame = T.Icons[index]
+   if not frame then
+      frame = T.MakePartyMovieIcon(index)
+   else
+      frame:Show()
+   end
+end
+
+function T.HidePartyMovieIcon(index)
+   local frame = T.Icons[index]
+   if frame then
+      frame:Hide()
+   end
 end
