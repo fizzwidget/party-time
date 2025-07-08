@@ -71,8 +71,9 @@ C_ChatInfo.RegisterAddonMessagePrefix(addonName)
 
 EventRegistry:RegisterFrameEventAndCallback("CHAT_MSG_ADDON", T.HandleAddonMessage)
 
-function T.ChatCommandHandler(text)
+function T.ChatCommandHandler(text, editBox)
     C_ChatInfo.SendAddonMessage(addonName, "W|"..text, "PARTY")
+    SendChatMessage(text, "PARTY", editBox.languageID)
 end
 
 SLASH_PARTYTIME1 = "/pt"
