@@ -98,19 +98,27 @@ function T.AutoSetPartySymbols()
       if UnitExists(unit) then
          local preset = T.SavedPresets[UnitName(unit)]
          if preset and T.Settings.Memory then
-            SetRaidTarget(unit, preset)
+            T.TrySetRaidTarget(unit, preset)
             unitMarkers[preset] = unit
-            --print("setting unitMarkers", preset, unit)
          else
             CancelNextSave = true
             repeat  
                nextFreeMarker = nextFreeMarker + 1
+               -- mod gets us range 0...7, we want 1...8
+               if nextFreeMarker > NUM_RAID_MARKERS then
+                  nextFreeMarker = 1
+               end
             until not unitMarkers[nextFreeMarker]
-            SetRaidTarget(unit, nextFreeMarker)
+            T.TrySetRaidTarget(unit, nextFreeMarker)
          end
       end
    end
 end
+function T.TrySetRaidTarget(unit, index)
+   if GetRaidTargetIndex(unit) == index then return end
+   SetRaidTarget(unit, index)
+end
+
 function Events:GROUP_ROSTER_UPDATE()
     if T.Settings.Autoapply and UnitLeadsAnyGroup("player") then
         T.AutoSetPartySymbols()
@@ -118,7 +126,6 @@ function Events:GROUP_ROSTER_UPDATE()
 end
 
 -- save assigned marker whenever one is set on a unit
--- TODO should we save markers only for certain units (is a player, in party, etc?)
 function T.SetRaidTarget(unit, index)
    if UnitIsPlayer(unit) and UnitPlayerOrPetInParty(unit) then
     if not CancelNextSave and T.Settings.RememberMenuMarkers then
