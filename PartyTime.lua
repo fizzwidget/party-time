@@ -120,11 +120,13 @@ end
 -- save assigned marker whenever one is set on a unit
 -- TODO should we save markers only for certain units (is a player, in party, etc?)
 function T.SetRaidTarget(unit, index)
+   if UnitIsPlayer(unit) and UnitPlayerOrPetInParty(unit) then
     if not CancelNextSave and T.Settings.RememberMenuMarkers then
         --print("saving", MarkerFromIndex(index), "for", UnitName(unit))
         T.SavedPresets[UnitName(unit)] = index
     end
     CancelNextSave = false
+   end
 end
 hooksecurefunc("SetRaidTarget", T.SetRaidTarget)
 
