@@ -101,7 +101,7 @@ function T.AutoSetPartySymbols()
          if preset and T.Settings.Memory then
             T.TrySetRaidTarget(unit, preset)
             unitMarkers[preset] = unit
-         else
+         elseif T.Settings.Autoapply then
             CancelNextSave = true
             repeat  
                nextFreeMarker = nextFreeMarker + 1
@@ -121,7 +121,7 @@ function T.TrySetRaidTarget(unit, index)
 end
 
 function Events:GROUP_ROSTER_UPDATE()
-    if T.Settings.Autoapply and UnitLeadsAnyGroup("player") then
+    if UnitLeadsAnyGroup("player") then
         T.AutoSetPartySymbols()
     end
 end
