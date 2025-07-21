@@ -44,8 +44,6 @@ T.TrackedQuests = _G[addonName.."_TrackedQuests"]
 -- Party warning "chat channel"
 ------------------------------------------------------
 
-T.TrackedQuests = {}
-
 function T.HandleAddonMessage(self, prefix, message, channel, sender)
    if prefix ~= addonName then return end
    local id, text = strmatch(message, "(.)|(.+)")
@@ -111,6 +109,11 @@ SlashCmdList["PARTYQUEST"] = function(text)
    end
 end
 
+local function questLogMenu(owner, rootDescription, contextData)
+   print(owner.questID)
+end
+Menu.ModifyMenu("MENU_QUEST_MAP_LOG_TITLE", questLogMenu)
+
 
 ------------------------------------------------------
 -- Save & restore target markers
@@ -169,7 +172,7 @@ function T.SetRaidTarget(unit, index)
 end
 hooksecurefunc("SetRaidTarget", T.SetRaidTarget)
 
-function menu(owner, rootDescription, contextData)
+local function partyMenu(owner, rootDescription, contextData)
     local function IsSelected()
         return T.Settings.RememberMenuMarkers
     end
@@ -181,8 +184,8 @@ function menu(owner, rootDescription, contextData)
     rootDescription:CreateCheckbox("Remember Target Marker", IsSelected, SetSelected)
 end
 
-Menu.ModifyMenu("MENU_UNIT_SELF", menu)
-Menu.ModifyMenu("MENU_UNIT_PARTY", menu)
+Menu.ModifyMenu("MENU_UNIT_SELF", partyMenu)
+Menu.ModifyMenu("MENU_UNIT_PARTY", partyMenu)
 
 ------------------------------------------------------
 -- Show when party members in movie/cinematic
