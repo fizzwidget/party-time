@@ -48,7 +48,7 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
       RaidNotice_AddMessage(RaidWarningFrame, text, ChatTypeInfo["WHISPER"])
       PlaySound(SOUNDKIT.RAID_WARNING)
     
-   elseif id == "I" then
+   elseif id == "M" then
       local name, server = strsplit("-", sender)
       for index = 1, 4 do
          local unit = "party"..index
@@ -62,7 +62,14 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
             break
          end
       end
-      
+   elseif id == "Q" then
+      local action, quest = strsplit(" ", text)
+      local questID = tonumber(quest)
+      if action == "ADD" then
+         print(action, questID)
+      elseif action == "REMOVE" then
+         print(action, questID)         
+      end
    end
 
 end
@@ -79,6 +86,16 @@ end
 SLASH_PARTYTIME1 = "/pt"
 SLASH_PARTYTIME2 = "/pw"
 SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
+
+------------------------------------------------------
+-- Shared focused-quest tracker
+------------------------------------------------------
+
+-- TEMP
+SLASH_PARTYQUEST1 = "/pq"
+SlashCmdList["PARTYQUEST"] = function(text)
+   C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE 1234", "PARTY")
+end
 
 
 ------------------------------------------------------
@@ -158,19 +175,19 @@ Menu.ModifyMenu("MENU_UNIT_PARTY", menu)
 ------------------------------------------------------
 
 function Events:CINEMATIC_START()
-   C_ChatInfo.SendAddonMessage(addonName, "I|START", "PARTY")
+   C_ChatInfo.SendAddonMessage(addonName, "M|START", "PARTY")
 end
 
 function Events:CINEMATIC_STOP(...)
-   C_ChatInfo.SendAddonMessage(addonName, "I|STOP", "PARTY")
+   C_ChatInfo.SendAddonMessage(addonName, "M|STOP", "PARTY")
 end
 
 function Events:PLAY_MOVIE(...)
-   C_ChatInfo.SendAddonMessage(addonName, "I|START", "PARTY")
+   C_ChatInfo.SendAddonMessage(addonName, "M|START", "PARTY")
 end
 
 function Events:STOP_MOVIE(...)
-   C_ChatInfo.SendAddonMessage(addonName, "I|STOP", "PARTY")
+   C_ChatInfo.SendAddonMessage(addonName, "M|STOP", "PARTY")
 end
 
 T.Icons = {}
