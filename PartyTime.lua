@@ -35,9 +35,16 @@ if not _G[addonName.."_SavedPresets"] then
 end
 T.SavedPresets = _G[addonName.."_SavedPresets"]
 
+if not _G[addonName.."_TrackedQuests"] then
+    _G[addonName.."_TrackedQuests"] = {}
+end
+T.TrackedQuests = _G[addonName.."_TrackedQuests"]
+
 ------------------------------------------------------
 -- Party warning "chat channel"
 ------------------------------------------------------
+
+T.TrackedQuests = {}
 
 function T.HandleAddonMessage(self, prefix, message, channel, sender)
    if prefix ~= addonName then return end
@@ -67,11 +74,12 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
       local questID = tonumber(quest)
       if action == "ADD" then
          print(action, questID)
+         T.TrackedQuests[questID] = true
       elseif action == "REMOVE" then
-         print(action, questID)         
+         print(action, questID)  
+         T.TrackedQuests[questID] = nil
       end
    end
-
 end
 
 C_ChatInfo.RegisterAddonMessagePrefix(addonName)
@@ -94,7 +102,13 @@ SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
 -- TEMP
 SLASH_PARTYQUEST1 = "/pq"
 SlashCmdList["PARTYQUEST"] = function(text)
-   C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE 1234", "PARTY")
+   if text == "add" then
+      C_ChatInfo.SendAddonMessage(addonName, "Q|ADD 1234", "PARTY")
+   elseif text == "remove" then
+      C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE 1234", "PARTY")
+   elseif text == "" then
+      DevTools_Dump(T.TrackedQuests)
+   end
 end
 
 

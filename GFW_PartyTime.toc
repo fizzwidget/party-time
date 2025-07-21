@@ -5,6 +5,7 @@
 ## Notes: Things to help with playing together
 ## Category: User Interface
 ## SavedVariables: GFW_PartyTime_Settings, GFW_PartyTime_SavedPresets
+## SavedVariablesPerCharacter: GFW_PartyTime_TrackedQuests
 ## LoadSavedVariablesFirst: 1
 
 Localization.lua
