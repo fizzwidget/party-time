@@ -131,10 +131,19 @@ Menu.ModifyMenu("MENU_QUEST_MAP_LOG_TITLE", questLogMenu)
 
 function MakeFrame()
 	T.Frame = CreateFrame("GameTooltip", addonName.."_Tooltip", UIParent, "GameTooltipTemplate")
+	
 	T.Frame.CloseButton = CreateFrame("Button", nil, T.Frame, "UIPanelCloseButtonNoScripts")
 	T.Frame.CloseButton:SetScript("OnClick", function() T.Frame:Hide() end)
+	T.Frame.CloseButton:SetPoint("TOPRIGHT")
+	
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	T.Frame:SetPoint("CENTER")
+	
+	T.Frame:EnableMouse(true)
+	T.Frame:SetMovable(true)
+	T.Frame:RegisterForDrag("LeftButton")
+	T.Frame:SetScript("OnDragStart", T.Frame.StartMoving)
+	T.Frame:SetScript("OnDragStop", T.Frame.StopMovingOrSizing)
 end
 
 function ShowFrame()
@@ -143,9 +152,13 @@ function ShowFrame()
 	end
 	
 	-- TEMP
-	GameTooltip_SetTitle(T.Frame, T.Title, HIGHLIGHT_FONT_COLOR)
+	GameTooltip_SetTitle(T.Frame, T.Title, NORMAL_FONT_COLOR, false)
+	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
+
 	T.Frame:Show()
 end
+
+ShowFrame()
 
 ------------------------------------------------------
 -- Save & restore target markers
