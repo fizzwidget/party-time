@@ -110,7 +110,21 @@ SlashCmdList["PARTYQUEST"] = function(text)
 end
 
 local function questLogMenu(owner, rootDescription, contextData)
-   print(owner.questID)
+   local function IsSelected()
+      return T.TrackedQuests[owner.questID]
+   end
+   local function SetSelected()
+      if T.TrackedQuests[owner.questID] then
+         T.TrackedQuests[owner.questID] = nil
+         C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE "..owner.questID, "PARTY")
+      else
+         T.TrackedQuests[owner.questID] = true
+         C_ChatInfo.SendAddonMessage(addonName, "Q|ADD "..owner.questID, "PARTY")
+      end
+   end
+   rootDescription:CreateDivider();
+   rootDescription:CreateTitle("PartyTime");
+   rootDescription:CreateCheckbox("Track Quest", IsSelected, SetSelected)
 end
 Menu.ModifyMenu("MENU_QUEST_MAP_LOG_TITLE", questLogMenu)
 
