@@ -155,6 +155,9 @@ function T.ShowFrame()
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, T.Title, NORMAL_FONT_COLOR, false)
 	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
+	for id in pairs(T.TrackedQuests) do
+		GameTooltip_AddNormalLine(T.Frame, C_QuestLog.GetTitleForQuestID(id), false)
+	end
 	T.Frame:Show()
 end
 
