@@ -169,13 +169,24 @@ function T.ShowFrame()
 	-- TEMP
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, T.Title, NORMAL_FONT_COLOR, false)
-	for id in pairs(T.TrackedQuests) do
-		GameTooltip_AddNormalLine(T.Frame, C_QuestLog.GetTitleForQuestID(id))
-	end
 	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
 	for id in pairs(T.TrackedQuests) do
 		GameTooltip_AddNormalLine(T.Frame, C_QuestLog.GetTitleForQuestID(id), false)
-		GameTooltip_AddHighlightLine(T.Frame, x("player"):WrapTextInColorCode(y(UnitName("player"))).." "..x("party1"):WrapTextInColorCode(y(UnitName("party1"))).." "..x("party2"):WrapTextInColorCode(y(UnitName("party2"))).." "..x("party3"):WrapTextInColorCode(y(UnitName("party3"))).." "..x("party4"):WrapTextInColorCode(y(UnitName("party4"))), false)
+		local data = ProcessPartyProgress(id)
+		if data then
+			--print("on quest:", table.concat(data.playersOnQuest, ", "))
+			--print("ready for turnin:", table.concat(data.playersReady, ", "))
+			for objective, status in pairs(data.objectives) do
+				local summary = {}
+				for player, counts in pairs(status) do 
+					local info = ("%s %d/%d"):format(player, counts[1], counts[2])
+					tinsert(summary, info)
+				end
+				--print(" ", objective, ":", table.concat(summary, ", "))
+				GameTooltip_AddHighlightLine(T.Frame, objective, false)
+				GameTooltip_AddHighlightLine(T.Frame, table.concat(summary, " "), false, 5)
+			end
+		end
 	end
 	T.Frame:Show()
 end
@@ -198,8 +209,6 @@ function y(input)
 		return input
 	end
 end
-
-T.ShowFrame()
 
 local LINE_TYPE_QUEST = 17
 local LINE_TYPE_PLAYER = 18
@@ -228,7 +237,6 @@ function ProcessPartyProgress(questID)
 				-- in that case, nothing to do here
 			elseif line.type == LINE_TYPE_PLAYER then
 				currentPlayer = line.leftText
-				print(currentPlayer)
 			elseif line.type == LINE_TYPE_OBJECTIVE then
 				-- TODO does this one need localization format/pattern support?
 				local completed, total, objective = strmatch(line.leftText, "(%d+)/(%d) (.+)")
@@ -256,6 +264,8 @@ function ProcessPartyProgress(questID)
 	end
 	return processed
 end
+
+T.ShowFrame()
 
 ------------------------------------------------------
 -- Save & restore target markers
