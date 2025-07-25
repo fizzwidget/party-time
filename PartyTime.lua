@@ -101,7 +101,9 @@ SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
 -- TEMP
 SLASH_PARTYQUEST1 = "/pq"
 SlashCmdList["PARTYQUEST"] = function(text)
-	if text == "test" then
+	if text == "clear" then
+		wipe(T.TrackedQuests)
+	elseif text == "test" then
 		for id in pairs(T.TrackedQuests) do
 			print(id, C_QuestLog.GetTitleForQuestID(id))
 			local data = ProcessPartyProgress(id)
