@@ -101,11 +101,7 @@ SlashCmdList["PARTYTIME"] = T.ChatCommandHandler
 -- TEMP
 SLASH_PARTYQUEST1 = "/pq"
 SlashCmdList["PARTYQUEST"] = function(text)
-	if text == "add" then
-		C_ChatInfo.SendAddonMessage(addonName, "Q|ADD 1234", "PARTY")
-	elseif text == "remove" then
-		C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE 1234", "PARTY")
-	elseif text == "test" then
+	if text == "test" then
 		for id in pairs(T.TrackedQuests) do
 			print(id, C_QuestLog.GetTitleForQuestID(id))
 			local data = ProcessPartyProgress(id)
@@ -177,7 +173,30 @@ function T.ShowFrame()
 		GameTooltip_AddNormalLine(T.Frame, C_QuestLog.GetTitleForQuestID(id))
 	end
 	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
+	for id in pairs(T.TrackedQuests) do
+		GameTooltip_AddNormalLine(T.Frame, C_QuestLog.GetTitleForQuestID(id), false)
+		GameTooltip_AddHighlightLine(T.Frame, x("player"):WrapTextInColorCode(y(UnitName("player"))).." "..x("party1"):WrapTextInColorCode(y(UnitName("party1"))).." "..x("party2"):WrapTextInColorCode(y(UnitName("party2"))).." "..x("party3"):WrapTextInColorCode(y(UnitName("party3"))).." "..x("party4"):WrapTextInColorCode(y(UnitName("party4"))), false)
+	end
 	T.Frame:Show()
+end
+
+function x(input)
+	if UnitName(input) == "Sethenot" then
+		return GREEN_FONT_COLOR
+	elseif UnitClass(input) == "Rogue" then
+		return WHITE_FONT_COLOR
+	else
+		return RED_FONT_COLOR
+	end
+end
+
+function y(input)
+	if input == nil then
+		input = ""
+		return input
+	else
+		return input
+	end
 end
 
 T.ShowFrame()
