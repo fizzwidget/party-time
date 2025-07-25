@@ -105,8 +105,27 @@ SlashCmdList["PARTYQUEST"] = function(text)
 		C_ChatInfo.SendAddonMessage(addonName, "Q|ADD 1234", "PARTY")
 	elseif text == "remove" then
 		C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE 1234", "PARTY")
+	elseif text == "test" then
+		for id in pairs(T.TrackedQuests) do
+			print(id, C_QuestLog.GetTitleForQuestID(id))
+			local data = ProcessPartyProgress(id)
+			DevTools_Dump(data)
+			if data and false then
+				print("on quest:", table.concat(data.playersOnQuest, ", "))
+				print("ready for turnin:", table.concat(data.playersReady, ", "))
+				for objective, status in pairs(data.objectives) do
+					local summary = {}
+					for player, counts in pairs(status) do 
+						local info = ("%s %d/%d"):format(player, counts[1], counts[2])
+						tinsert(summary, info)
+					end
+					print(" ", objective, ":", table.concat(summary, ", "))
+				end
+			end
+		end
 	elseif text == "" then
 		DevTools_Dump(T.TrackedQuests)
+		T.ShowFrame()
 	end
 end
 
@@ -154,11 +173,70 @@ function T.ShowFrame()
 	-- TEMP
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, T.Title, NORMAL_FONT_COLOR, false)
+	for id in pairs(T.TrackedQuests) do
+		GameTooltip_AddNormalLine(T.Frame, C_QuestLog.GetTitleForQuestID(id))
+	end
 	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
 	T.Frame:Show()
 end
 
 T.ShowFrame()
+
+local LINE_TYPE_QUEST = 17
+local LINE_TYPE_PLAYER = 18
+local LINE_TYPE_OBJECTIVE = 8
+
+function ProcessPartyProgress(questID)
+	local omitTitle = false
+	local ignoreActivePlayer = false
+	local data = C_TooltipInfo.GetQuestPartyProgress(questID, omitTitle, ignoreActivePlayer)
+	
+	-- TODO: is this what we want to report for quests we're not on?
+	if not data then return end
+	
+	local processed = {}
+	processed.playersOnQuest = {}
+	processed.playersReady = {}
+	processed.objectives = {}
+	
+	-- if no party, no LINE_TYPE_PLAYER lines in tooltip data
+	local currentPlayer = UnitName("player") 
+	
+	for key, line in pairs(data.lines) do
+		if type(key) == "number" then 
+			if line.type == LINE_TYPE_QUEST then
+				-- we should always have exactly one quest header, right?
+				-- in that case, nothing to do here
+			elseif line.type == LINE_TYPE_PLAYER then
+				currentPlayer = line.leftText
+				print(currentPlayer)
+			elseif line.type == LINE_TYPE_OBJECTIVE then
+				-- TODO does this one need localization format/pattern support?
+				local completed, total, objective = strmatch(line.leftText, "(%d+)/(%d) (.+)")
+				if objective then
+					if not processed.objectives[objective] then
+						processed.objectives[objective] = {}
+					end
+					processed.objectives[objective][currentPlayer] = {tonumber(completed), tonumber(total)}
+				end
+				
+				local onQuest = strfind(line.leftText, QUEST_PROGRESS_TOOLTIP_QUEST_ON_QUEST, 1, true)
+				-- nothing to do with this one, since we infer on quest from others?
+				
+				local readyForTurnIn = strfind(line.leftText, QUEST_PROGRESS_TOOLTIP_QUEST_READY_FOR_TURN_IN, 1, true)
+				if readyForTurnIn then
+					tinsert(processed.playersReady, currentPlayer)
+				end
+				
+				local notOnQuest = strfind(line.leftText, QUEST_PROGRESS_TOOLTIP_NOT_ON_QUEST, 1, true)
+				if not notOnQuest then
+					tinsert(processed.playersOnQuest, currentPlayer)
+				end
+			end
+		end
+	end
+	return processed
+end
 
 ------------------------------------------------------
 -- Save & restore target markers
