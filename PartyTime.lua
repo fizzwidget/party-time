@@ -163,6 +163,14 @@ function T.MakeFrame()
 	T.Frame:SetScript("OnDragStop", T.Frame.StopMovingOrSizing)
 end
 
+function T.UpdateFrame()
+	if not T.Frame:IsShown() then
+		T.FrameUpdateTimer:Cancel()
+		return
+	end
+	T.ShowFrame()
+end
+
 function T.ShowFrame()
 	if not T.Frame then
 		T.MakeFrame()
@@ -198,6 +206,12 @@ function T.ShowFrame()
 			end
 		end
 	end
+	
+	if T.FrameUpdateTimer then
+		T.FrameUpdateTimer:Cancel()
+	end
+	T.FrameUpdateTimer = C_Timer.NewTimer(1.0, T.UpdateFrame)
+	
 	T.Frame:Show()
 end
 
