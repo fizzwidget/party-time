@@ -168,16 +168,24 @@ function T.ShowFrame()
 		T.MakeFrame()
 	end
 	
-	-- TEMP
+	-- TODO? Don't show frame if not in party / if list empty?
+	
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
-	GameTooltip_SetTitle(T.Frame, T.Title, NORMAL_FONT_COLOR, false)
+	GameTooltip_SetTitle(T.Frame, "Party Quests", NORMAL_FONT_COLOR, false)
 	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
 	for id in pairs(T.TrackedQuests) do
+		-- TODO? color title if not on quest
+		-- different color for "unknown" vs C_QuestLog.IsQuestFlaggedCompleted
 		GameTooltip_AddNormalLine(T.Frame, C_QuestLog.GetTitleForQuestID(id), false)
 		local data = ProcessPartyProgress(id)
 		if data then
 			--print("on quest:", table.concat(data.playersOnQuest, ", "))
 			--print("ready for turnin:", table.concat(data.playersReady, ", "))
+			
+			-- TODO? if no objectives, just list party members (colored by status)
+			
+			-- TODO? don't list self (maybe do for testing though)
+			
 			for objective, status in pairs(data.objectives) do
 				local summary = {}
 				for player, counts in pairs(status) do 
