@@ -128,23 +128,38 @@ SlashCmdList["PARTYQUEST"] = function(text)
 end
 
 local function questLogMenu(owner, rootDescription, contextData)
+	local questID = owner.questID or T.ClickedQuestID
 	local function IsSelected()
-		return T.TrackedQuests[owner.questID]
+		return T.TrackedQuests[questID]
 	end
 	local function SetSelected()
-		if T.TrackedQuests[owner.questID] then
-			T.TrackedQuests[owner.questID] = nil
-			C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE "..owner.questID, "PARTY")
+		if T.TrackedQuests[questID] then
+			T.TrackedQuests[questID] = nil
+			C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE "..questID, "PARTY")
 		else
-			T.TrackedQuests[owner.questID] = true
-			C_ChatInfo.SendAddonMessage(addonName, "Q|ADD "..owner.questID, "PARTY")
+			T.TrackedQuests[questID] = true
+			C_ChatInfo.SendAddonMessage(addonName, "Q|ADD "..questID, "PARTY")
 		end
 	end
 	rootDescription:CreateDivider();
 	rootDescription:CreateTitle("PartyTime");
-	rootDescription:CreateCheckbox("Track Quest", IsSelected, SetSelected)
+	rootDescription:CreateCheckbox("Party Quest", IsSelected, SetSelected)
 end
 Menu.ModifyMenu("MENU_QUEST_MAP_LOG_TITLE", questLogMenu)
+Menu.ModifyMenu("MENU_QUEST_OBJECTIVE_TRACKER", questLogMenu)
+
+-- ugly hack because MENU_QUEST_OBJECTIVE_TRACKER loses its questID context
+local function setClickedQuest(self, block)
+	T.ClickedQuestID = block.id
+end
+local function clearClickedQuest(self, block)
+	T.ClickedQuestID = nil
+end
+hooksecurefunc(QuestObjectiveTracker, "OnBlockHeaderEnter", setClickedQuest)
+hooksecurefunc(CampaignQuestObjectiveTracker, "OnBlockHeaderEnter", setClickedQuest)
+hooksecurefunc(QuestObjectiveTracker, "OnBlockHeaderLeave", clearClickedQuest)
+hooksecurefunc(CampaignQuestObjectiveTracker, "OnBlockHeaderLeave", clearClickedQuest)
+
 
 function T.MakeFrame()
 	T.Frame = CreateFrame("GameTooltip", addonName.."_Tooltip", UIParent, "GameTooltipTemplate")
