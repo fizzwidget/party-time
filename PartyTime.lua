@@ -207,7 +207,9 @@ function T.ShowFrame()
 			--print("on quest:", table.concat(data.playersOnQuest, ", "))
 			--print("ready for turnin:", table.concat(data.playersReady, ", "))
 			
-			-- TODO? if no objectives, just list party members (colored by status)
+			-- list members w/ on quest, not on quest, ready for turnin status
+			-- TODO don't list members for quests with objectives
+			-- TODO instead display only the not on quest members
 			local membersOnQuest = {}
 			for _, unit in pairs(units) do
 				if data.playersReady[UnitName(unit)] then
@@ -219,7 +221,8 @@ function T.ShowFrame()
 				end
 			end
 			GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 5)
-			-- TODO? don't list self (maybe do for testing though)
+			
+			-- TODO? don't include oneself in the list (but keep it for now for testing)
 			
 			for objective, status in pairs(data.objectives) do
 				local summary = {}
