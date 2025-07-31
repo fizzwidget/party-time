@@ -193,6 +193,8 @@ function T.ShowFrame()
 	
 	-- TODO? Don't show frame if not in party / if list empty?
 	
+	local units = {"player", "party1", "party2", "party3", "party4"}
+	
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, "Party Quests", NORMAL_FONT_COLOR, false)
 	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
@@ -206,7 +208,17 @@ function T.ShowFrame()
 			--print("ready for turnin:", table.concat(data.playersReady, ", "))
 			
 			-- TODO? if no objectives, just list party members (colored by status)
-			
+			local membersOnQuest = {}
+			for _, unit in pairs(units) do
+				if data.playersReady[UnitName(unit)] then
+					tinsert(membersOnQuest, GREEN_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
+				elseif data.playersOnQuest[UnitName(unit)] then
+					tinsert(membersOnQuest, WHITE_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
+				elseif UnitName(unit) then
+					tinsert(membersOnQuest, RED_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
+				end
+			end
+			GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 5)
 			-- TODO? don't list self (maybe do for testing though)
 			
 			for objective, status in pairs(data.objectives) do
@@ -217,7 +229,7 @@ function T.ShowFrame()
 				end
 				--print(" ", objective, ":", table.concat(summary, ", "))
 				GameTooltip_AddHighlightLine(T.Frame, objective, false)
-				GameTooltip_AddHighlightLine(T.Frame, table.concat(summary, " "), false, 5)
+				GameTooltip_AddHighlightLine(T.Frame, table.concat(summary, " "), false, 10)
 			end
 		end
 	end
@@ -228,25 +240,6 @@ function T.ShowFrame()
 	T.FrameUpdateTimer = C_Timer.NewTimer(1.0, T.UpdateFrame)
 	
 	T.Frame:Show()
-end
-
-function x(input)
-	if UnitName(input) == "Sethenot" then
-		return GREEN_FONT_COLOR
-	elseif UnitClass(input) == "Rogue" then
-		return WHITE_FONT_COLOR
-	else
-		return RED_FONT_COLOR
-	end
-end
-
-function y(input)
-	if input == nil then
-		input = ""
-		return input
-	else
-		return input
-	end
 end
 
 local LINE_TYPE_QUEST = 17
@@ -291,12 +284,12 @@ function ProcessPartyProgress(questID)
 				
 				local readyForTurnIn = strfind(line.leftText, QUEST_PROGRESS_TOOLTIP_QUEST_READY_FOR_TURN_IN, 1, true)
 				if readyForTurnIn then
-					tinsert(processed.playersReady, currentPlayer)
+					processed.playersReady[currentPlayer] = true
 				end
 				
 				local notOnQuest = strfind(line.leftText, QUEST_PROGRESS_TOOLTIP_NOT_ON_QUEST, 1, true)
 				if not notOnQuest then
-					tinsert(processed.playersOnQuest, currentPlayer)
+					processed.playersOnQuest[currentPlayer] = true
 				end
 			end
 		end
