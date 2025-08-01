@@ -201,7 +201,13 @@ function T.ShowFrame()
 	for id in pairs(T.TrackedQuests) do
 		-- TODO? color title if not on quest
 		-- different color for "unknown" vs C_QuestLog.IsQuestFlaggedCompleted
-		GameTooltip_AddNormalLine(T.Frame, C_QuestLog.GetTitleForQuestID(id), false)
+		if C_QuestLog.IsOnQuest(id) then
+			GameTooltip_AddNormalLine(T.Frame, NORMAL_FONT_COLOR:WrapTextInColorCode(C_QuestLog.GetTitleForQuestID(id)), false)
+		elseif C_QuestLog.IsQuestFlaggedCompleted(id) then
+			GameTooltip_AddNormalLine(T.Frame, GRAY_FONT_COLOR:WrapTextInColorCode(C_QuestLog.GetTitleForQuestID(id)), false)
+		else
+			GameTooltip_AddNormalLine(T.Frame, RED_FONT_COLOR:WrapTextInColorCode(C_QuestLog.GetTitleForQuestID(id)), false)
+		end
 		local data = ProcessPartyProgress(id)
 		if data then
 			--print("on quest:", table.concat(data.playersOnQuest, ", "))
