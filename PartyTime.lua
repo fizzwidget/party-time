@@ -226,7 +226,7 @@ function T.ShowFrame()
 					tinsert(membersOnQuest, RED_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
 				end
 			end
-			GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 5)
+			GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 7.5)
 			
 			-- TODO? don't include oneself in the list (but keep it for now for testing)
 			
@@ -237,8 +237,8 @@ function T.ShowFrame()
 					tinsert(summary, info)
 				end
 				--print(" ", objective, ":", table.concat(summary, ", "))
-				GameTooltip_AddHighlightLine(T.Frame, objective, false)
-				GameTooltip_AddHighlightLine(T.Frame, table.concat(summary, " "), false, 10)
+				GameTooltip_AddHighlightLine(T.Frame, LIGHTYELLOW_FONT_COLOR:WrapTextInColorCode(objective), false, 7.5)
+				GameTooltip_AddHighlightLine(T.Frame, table.concat(summary, " "), false, 15)
 			end
 		end
 	end
