@@ -72,10 +72,10 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
 		local action, quest = strsplit(" ", text)
 		local questID = tonumber(quest)
 		if action == "ADD" then
-			print(action, questID)
+			-- print(action, questID)
 			T.TrackedQuests[questID] = true
 		elseif action == "REMOVE" then
-			print(action, questID)
+			-- print(action, questID)
 			T.TrackedQuests[questID] = nil
 		end
 	end
@@ -199,8 +199,8 @@ function T.ShowFrame()
 	GameTooltip_SetTitle(T.Frame, "Party Quests", NORMAL_FONT_COLOR, false)
 	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
 	for id in pairs(T.TrackedQuests) do
-		-- TODO? color title if not on quest
-		-- different color for "unknown" vs C_QuestLog.IsQuestFlaggedCompleted
+
+		-- different color for on quest, not on quest, previously completed quest
 		if C_QuestLog.IsOnQuest(id) then
 			GameTooltip_AddNormalLine(T.Frame, NORMAL_FONT_COLOR:WrapTextInColorCode(C_QuestLog.GetTitleForQuestID(id)), false)
 		elseif C_QuestLog.IsQuestFlaggedCompleted(id) then
@@ -208,6 +208,7 @@ function T.ShowFrame()
 		else
 			GameTooltip_AddNormalLine(T.Frame, RED_FONT_COLOR:WrapTextInColorCode(C_QuestLog.GetTitleForQuestID(id)), false)
 		end
+		
 		local data = ProcessPartyProgress(id)
 		if data then
 			--print("on quest:", table.concat(data.playersOnQuest, ", "))
@@ -306,6 +307,20 @@ function ProcessPartyProgress(questID)
 	return processed
 end
 
+function T.PushPartyQuest(questID, remove)
+	if remove then
+		C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE "..questID, "PARTY")
+	else
+		C_ChatInfo.SendAddonMessage(addonName, "Q|ADD "..questID, "PARTY")
+	end
+end
+
+function T.PushAllPartyQuests()
+	for id in pairs(T.TrackedQuests) do
+		T.PushPartyQuest(id)
+	end
+end
+
 T.ShowFrame()
 
 ------------------------------------------------------
@@ -351,6 +366,8 @@ function Events:GROUP_ROSTER_UPDATE()
 	if UnitLeadsAnyGroup("player") then
 		T.AutoSetPartySymbols()
 	end
+	
+	T.PushAllPartyQuests()
 end
 
 -- save assigned marker whenever one is set on a unit
