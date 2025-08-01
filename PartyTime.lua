@@ -72,10 +72,10 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
 		local action, quest = strsplit(" ", text)
 		local questID = tonumber(quest)
 		if action == "ADD" then
-			print(action, questID)
+			-- print(action, questID)
 			T.TrackedQuests[questID] = true
 		elseif action == "REMOVE" then
-			print(action, questID)
+			-- print(action, questID)
 			T.TrackedQuests[questID] = nil
 		end
 	end
@@ -300,6 +300,20 @@ function ProcessPartyProgress(questID)
 	return processed
 end
 
+function T.PushPartyQuest(questID, remove)
+	if remove then
+		C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE "..questID, "PARTY")
+	else
+		C_ChatInfo.SendAddonMessage(addonName, "Q|ADD "..questID, "PARTY")
+	end
+end
+
+function T.PushAllPartyQuests()
+	for id in pairs(T.TrackedQuests) do
+		T.PushPartyQuest(id)
+	end
+end
+
 T.ShowFrame()
 
 ------------------------------------------------------
@@ -345,6 +359,8 @@ function Events:GROUP_ROSTER_UPDATE()
 	if UnitLeadsAnyGroup("player") then
 		T.AutoSetPartySymbols()
 	end
+	
+	T.PushAllPartyQuests()
 end
 
 -- save assigned marker whenever one is set on a unit
