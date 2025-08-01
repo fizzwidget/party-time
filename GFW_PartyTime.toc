@@ -6,6 +6,7 @@
 ## Category: User Interface
 ## SavedVariables: GFW_PartyTime_Settings, GFW_PartyTime_SavedPresets
 ## LoadSavedVariablesFirst: 1
+## IconTexture: Interface/Icons/inv_misc_discoball_01
 
 Localization.lua
 
