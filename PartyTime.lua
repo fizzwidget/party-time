@@ -193,44 +193,66 @@ function T.ShowFrame()
 	
 	-- TODO? Don't show frame if not in party / if list empty?
 	
+	-- TODO? don't include oneself in the list (but keep it for now for testing)
 	local units = {"player", "party1", "party2", "party3", "party4"}
 	
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, "Party Quests", NORMAL_FONT_COLOR, false)
-	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
-	for id in pairs(T.TrackedQuests) do
+	T.Frame:SetMinimumWidth(T.Frame.TextLeft1:GetWidth() + 2 + T.Frame.CloseButton:GetWidth())
 
+	for id in pairs(T.TrackedQuests) do
 		-- different color for on quest, not on quest, previously completed quest
+		local questTitle = C_QuestLog.GetTitleForQuestID(id)
+		local questTitleColor
 		if C_QuestLog.IsOnQuest(id) then
-			GameTooltip_AddNormalLine(T.Frame, NORMAL_FONT_COLOR:WrapTextInColorCode(C_QuestLog.GetTitleForQuestID(id)), false)
+			questTitleColor = NORMAL_FONT_COLOR
 		elseif C_QuestLog.IsQuestFlaggedCompleted(id) then
-			GameTooltip_AddNormalLine(T.Frame, GRAY_FONT_COLOR:WrapTextInColorCode(C_QuestLog.GetTitleForQuestID(id)), false)
+			questTitleColor = GRAY_FONT_COLOR
 		else
-			GameTooltip_AddNormalLine(T.Frame, RED_FONT_COLOR:WrapTextInColorCode(C_QuestLog.GetTitleForQuestID(id)), false)
+			questTitleColor = RED_FONT_COLOR
 		end
-		
+				
 		local data = ProcessPartyProgress(id)
-		if data then
-			--print("on quest:", table.concat(data.playersOnQuest, ", "))
-			--print("ready for turnin:", table.concat(data.playersReady, ", "))
+		if not data then
+			-- always title (only) if not on quest
+			GameTooltip_AddColoredLine(T.Frame, questTitle, questTitleColor, false)
+		else
 			
 			-- list members w/ on quest, not on quest, ready for turnin status
 			-- TODO don't list members for quests with objectives
 			-- TODO instead display only the not on quest members
 			local membersOnQuest = {}
+			local membersWithoutQuest = {}
 			for _, unit in pairs(units) do
-				if data.playersReady[UnitName(unit)] then
-					tinsert(membersOnQuest, GREEN_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
-				elseif data.playersOnQuest[UnitName(unit)] then
-					tinsert(membersOnQuest, WHITE_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
-				elseif UnitName(unit) then
-					tinsert(membersOnQuest, RED_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
+				local unitName = UnitName(unit)
+				if unitName then
+					if data.playersReady[unitName] then
+						tinsert(membersOnQuest, GREEN_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
+					elseif data.playersOnQuest[unitName] then
+						tinsert(membersOnQuest, WHITE_FONT_COLOR:WrapTextInColorCode(unitName))
+					else
+						tinsert(membersOnQuest, RED_FONT_COLOR:WrapTextInColorCode(unitName))
+						tinsert(membersWithoutQuest, unitName)
+					end
 				end
 			end
-			GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 7.5)
 			
-			-- TODO? don't include oneself in the list (but keep it for now for testing)
-			
+			-- 
+			local function hasObjectives(data)
+				for objective in pairs(data.objectives) do
+					return true
+				end
+			end
+			if not hasObjectives(data) then
+				-- separate lines for title and party status
+				GameTooltip_AddColoredLine(T.Frame, questTitle, questTitleColor, false)
+				GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 7.5)
+			else
+				-- combined line for title and missing members
+				local missingMembersText = table.concat(membersWithoutQuest, " ")
+				GameTooltip_AddColoredDoubleLine(T.Frame, questTitle, missingMembersText, questTitleColor, RED_FONT_COLOR)
+			end
+				
 			for objective, status in pairs(data.objectives) do
 				local summary = {}
 				for player, counts in pairs(status) do 
