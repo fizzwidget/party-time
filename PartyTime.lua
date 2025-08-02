@@ -186,6 +186,8 @@ function T.UpdateFrame()
 	T.ShowFrame()
 end
 
+T.FrameSize = 0.65
+
 function T.ShowFrame()
 	if not T.Frame then
 		T.MakeFrame()
@@ -198,6 +200,7 @@ function T.ShowFrame()
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, "Party Quests", NORMAL_FONT_COLOR, false)
 	T.Frame:SetPadding(T.Frame.CloseButton:GetWidth() + 2, 0)
+	T.Frame:SetScale(T.FrameSize)
 	for id in pairs(T.TrackedQuests) do
 
 		-- different color for on quest, not on quest, previously completed quest
