@@ -123,6 +123,15 @@ SlashCmdList["PARTYQUEST"] = function(text)
 				end
 			end
 		end
+	elseif strsub(text, 1, strlen("testcomplete")) == "testcomplete" then
+		-- quick grab first quest ID from the list for testing
+		local questID
+		for id in pairs(T.TrackedQuests) do
+			questID = id
+			break
+		end
+		C_ChatInfo.SendAddonMessage(addonName, "Q|COMPLETE "..questID, "PARTY")
+
 	elseif text == "" then
 		DevTools_Dump(T.TrackedQuests)
 		T.ShowFrame()
