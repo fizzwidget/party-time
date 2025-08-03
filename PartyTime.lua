@@ -186,6 +186,7 @@ function T.UpdateFrame()
 	T.ShowFrame()
 end
 
+
 function T.ShowFrame()
 	if not T.Frame then
 		T.MakeFrame()
@@ -199,6 +200,12 @@ function T.ShowFrame()
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, "Party Quests", NORMAL_FONT_COLOR, false)
 	T.Frame:SetMinimumWidth(T.Frame.TextLeft1:GetWidth() + 2 + T.Frame.CloseButton:GetWidth())
+	
+	-- TEMP until this is in settings UI
+	if not T.Settings.FrameSize then
+		T.Settings.FrameSize = 0.65
+	end
+	T.Frame:SetScale(T.Settings.FrameSize)
 
 	for id in pairs(T.TrackedQuests) do
 		-- different color for on quest, not on quest, previously completed quest
@@ -343,7 +350,9 @@ function T.PushAllPartyQuests()
 	end
 end
 
-T.ShowFrame()
+function Events:PLAYER_ENTERING_WORLD()
+	T.ShowFrame()
+end
 
 ------------------------------------------------------
 -- Save & restore target markers
