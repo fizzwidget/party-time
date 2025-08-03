@@ -46,6 +46,8 @@ T.TrackedQuests = _G[addonName.."_TrackedQuests"]
 -- Party warning "chat channel"
 ------------------------------------------------------
 
+T.QuestCompletions = {}
+
 function T.HandleAddonMessage(self, prefix, message, channel, sender)
 	if prefix ~= addonName then return end
 	local id, text = strmatch(message, "(.)|(.+)")
@@ -79,6 +81,23 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
 		elseif action == "REMOVE" then
 			-- print(action, questID)
 			T.TrackedQuests[questID] = nil
+		elseif action == "COMPLETE" then
+			print(action, questID)
+			T.QuestCompletions[questID] = (T.QuestCompletions[questID] or 0) + 1
+			local units = {"player", "party1", "party2", "party3", "party4"}
+			local partyMembers = 0
+			for _, unit in pairs(units) do
+				if not UnitExists(unit) then
+					break
+				elseif UnitIsConnected(unit) then
+					partyMembers = partyMembers + 1
+				end
+			end
+			if T.QuestCompletions[questID] >= partyMembers then
+				T.QuestCompletions[questID] = nil
+				T.TrackedQuests[questID] = nil
+				C_ChatInfo.SendAddonMessage(addonName, "Q|REMOVE "..questID, "PARTY")
+			end
 		end
 	end
 end
@@ -258,7 +277,6 @@ function T.ShowFrame()
 				GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 7.5)
 			else
 				-- combined line for title and missing members
-				-- TODO color for "don't know if this member is on quest because they're far away"
 				local missingMembersText = table.concat(membersWithoutQuest, " ")
 				GameTooltip_AddColoredDoubleLine(T.Frame, questTitle, missingMembersText, questTitleColor, RED_FONT_COLOR)
 			end
