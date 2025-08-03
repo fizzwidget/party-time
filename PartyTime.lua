@@ -226,15 +226,16 @@ function T.ShowFrame()
 			GameTooltip_AddColoredLine(T.Frame, questTitle, questTitleColor, false)
 		else
 			
-			-- TODO color for "don't know if this member is on quest because they're far away"
-			
 			-- prep list of members w/ on quest, not on quest, ready for turnin status
 			local membersOnQuest = {}
 			local membersWithoutQuest = {}
 			for _, unit in pairs(units) do
 				local unitName = UnitName(unit)
 				if unitName then
-					if data.playersReady[unitName] then
+					if not UnitIsVisible(unitName) then
+						tinsert(membersOnQuest, ORANGE_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
+						tinsert(membersWithoutQuest, ORANGE_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
+					elseif data.playersReady[unitName] then
 						tinsert(membersOnQuest, GREEN_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
 					elseif data.playersOnQuest[unitName] then
 						tinsert(membersOnQuest, WHITE_FONT_COLOR:WrapTextInColorCode(unitName))
