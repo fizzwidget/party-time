@@ -83,6 +83,8 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
 			T.TrackedQuests[questID] = nil
 		elseif action == "COMPLETE" then
 			-- print(action, questID)
+			
+			-- TODO should we be counting messages, or tracking who we have messages from?
 			T.QuestCompletions[questID] = (T.QuestCompletions[questID] or 0) + 1
 			local units = {"player", "party1", "party2", "party3", "party4"}
 			local partyMembers = 0
