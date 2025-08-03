@@ -205,8 +205,9 @@ function T.ShowFrame()
 	T.Frame:SetMinimumWidth(T.Frame.TextLeft1:GetWidth() + 2 + T.Frame.CloseButton:GetWidth())
 	
 	-- order dependency: this runs before Settings.lua
+	-- TODO same default value in multiple places is sad
 	local settings = _G[addonName .. "_Settings"]
-	local frameSize = settings and settings.FrameSize or 1.0 -- TODO no default in multiple places
+	local frameSize = settings and settings.FrameSize or 1.0 
 	T.Frame:SetScale(frameSize)
 
 	for id in pairs(T.TrackedQuests) do
