@@ -181,6 +181,7 @@ end
 function T.UpdateFrame()
 	if not T.Frame:IsShown() then
 		T.FrameUpdateTimer:Cancel()
+		T.FrameUpdateTimer = nil
 		return
 	end
 	T.ShowFrame()
@@ -225,6 +226,8 @@ function T.ShowFrame()
 			GameTooltip_AddColoredLine(T.Frame, questTitle, questTitleColor, false)
 		else
 			
+			-- TODO color for "don't know if this member is on quest because they're far away"
+			
 			-- prep list of members w/ on quest, not on quest, ready for turnin status
 			local membersOnQuest = {}
 			local membersWithoutQuest = {}
@@ -253,6 +256,7 @@ function T.ShowFrame()
 				GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 7.5)
 			else
 				-- combined line for title and missing members
+				-- TODO color for "don't know if this member is on quest because they're far away"
 				local missingMembersText = table.concat(membersWithoutQuest, " ")
 				GameTooltip_AddColoredDoubleLine(T.Frame, questTitle, missingMembersText, questTitleColor, RED_FONT_COLOR)
 			end
@@ -272,6 +276,7 @@ function T.ShowFrame()
 	
 	if T.FrameUpdateTimer then
 		T.FrameUpdateTimer:Cancel()
+		T.FrameUpdateTimer = nil
 	end
 	T.FrameUpdateTimer = C_Timer.NewTimer(1.0, T.UpdateFrame)
 	
