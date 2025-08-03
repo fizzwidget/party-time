@@ -82,7 +82,7 @@ function T.HandleAddonMessage(self, prefix, message, channel, sender)
 			-- print(action, questID)
 			T.TrackedQuests[questID] = nil
 		elseif action == "COMPLETE" then
-			print(action, questID)
+			-- print(action, questID)
 			T.QuestCompletions[questID] = (T.QuestCompletions[questID] or 0) + 1
 			local units = {"player", "party1", "party2", "party3", "party4"}
 			local partyMembers = 0
@@ -383,6 +383,11 @@ function T.PushAllPartyQuests()
 end
 
 T.ShowFrame()
+
+function Events:QUEST_TURNED_IN(questID, xpReward, moneyReward)
+	-- TODO for every quest, or only tracked ones?
+	C_ChatInfo.SendAddonMessage(addonName, "Q|COMPLETE "..questID, "PARTY")
+end
 
 ------------------------------------------------------
 -- Save & restore target markers
