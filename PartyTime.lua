@@ -259,7 +259,6 @@ function T.ShowFrame()
 				GameTooltip_AddHighlightLine(T.Frame, table.concat(membersOnQuest, " "), false, 7.5)
 			else
 				-- combined line for title and missing members
-				-- TODO color for "don't know if this member is on quest because they're far away"
 				local missingMembersText = table.concat(membersWithoutQuest, " ")
 				GameTooltip_AddColoredDoubleLine(T.Frame, questTitle, missingMembersText, questTitleColor, RED_FONT_COLOR)
 			end
