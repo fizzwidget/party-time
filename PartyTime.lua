@@ -28,6 +28,8 @@ local Events = T.EventHandlers
 function T.SetupSettings(settings)
 	settings:Checkbox("Memory", true)
 	settings:Checkbox("Autoapply", true)
+	local default, min, max, step = 1.0, 0.25, 2.0, 0.05
+	settings:Slider("FrameSize", default, min, max, step, FormatPercentage)
 end
 
 if not _G[addonName.."_SavedPresets"] then
@@ -352,6 +354,7 @@ function T.PushAllPartyQuests()
 	end
 end
 
+-- TODO showing after load breaks ANCHOR_PRESERVE remembering position
 function Events:PLAYER_ENTERING_WORLD()
 	T.ShowFrame()
 end

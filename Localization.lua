@@ -17,6 +17,9 @@ S.Memory = "Save markers per player"
 T.Memory = "Remembers the target marker you set on each player"
 S.Autoapply = "Automatically set markers"
 T.Autoapply = "Sets the first available marker for unknown players in your party"
+S.FrameSize = "Party Quests frame scale"
+T.FrameSize = "Shrinks or grows the list of party quest objectives/status"
+
 ------------------------------------------------------
 
 if (GetLocale() == "frFR") then
