@@ -52,6 +52,35 @@ function S:Checkbox(settingKey, defaultValue, parentInit, onValueChanged)
 	return init
 end
 
+function S:Slider(settingKey, defaultValue, minValue, maxValue, step, formatFunc, parentInit, onValueChanged)
+	assert(settingKey ~= nil, "Setting requires string key")
+	assert(defaultValue ~= nil, "Setting requires default value")
+	local variable = addonName .. "_" .. settingKey
+	local labelText = L.Setting[settingKey] or settingKey
+	local setting = Settings.RegisterAddOnSetting(
+		self.category, 
+		variable, 
+		settingKey, 
+		T.Settings,
+		type(defaultValue), 
+		labelText, 
+		defaultValue
+	)
+	
+	local options = Settings.CreateSliderOptions(minValue, maxValue, step)
+	options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, formatFunc)
+	local init = Settings.CreateSlider(self.category, setting, options, L.SettingTooltip[settingKey])
+
+	if parentInit then
+		init:Indent()
+		init:SetParentInitializer(parentInit)
+	end
+	if onValueChanged then
+		Settings.SetOnValueChangedCallback(variable, onValueChanged)
+	end
+	return init
+end
+
 -- menuOptions: table of string -> value
 -- string: key for getting text/tooltip (and referencing the option value without magic numbers in other code)
 -- value: number or whatever to read/write for this settings option
