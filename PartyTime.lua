@@ -225,9 +225,7 @@ function T.ShowFrame()
 			GameTooltip_AddColoredLine(T.Frame, questTitle, questTitleColor, false)
 		else
 			
-			-- list members w/ on quest, not on quest, ready for turnin status
-			-- TODO don't list members for quests with objectives
-			-- TODO instead display only the not on quest members
+			-- prep list of members w/ on quest, not on quest, ready for turnin status
 			local membersOnQuest = {}
 			local membersWithoutQuest = {}
 			for _, unit in pairs(units) do
@@ -244,7 +242,6 @@ function T.ShowFrame()
 				end
 			end
 			
-			-- 
 			local function hasObjectives(data)
 				for objective in pairs(data.objectives) do
 					return true
@@ -267,7 +264,7 @@ function T.ShowFrame()
 					tinsert(summary, info)
 				end
 				--print(" ", objective, ":", table.concat(summary, ", "))
-				GameTooltip_AddHighlightLine(T.Frame, LIGHTYELLOW_FONT_COLOR:WrapTextInColorCode(objective), false, 7.5)
+				GameTooltip_AddColoredLine(T.Frame, objective, LIGHTYELLOW_FONT_COLOR, false, 7.5)
 				GameTooltip_AddHighlightLine(T.Frame, table.concat(summary, " "), false, 15)
 			end
 		end
