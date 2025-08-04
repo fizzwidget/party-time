@@ -225,8 +225,6 @@ function T.ShowFrame()
 		T.MakeFrame()
 	end
 	
-	-- TODO? Don't show frame if not in party / if list empty?
-	
 	-- TODO? don't include oneself in the list (but keep it for now for testing)
 	local units = {"player", "party1", "party2", "party3", "party4"}
 	
@@ -384,11 +382,13 @@ function T.PushAllPartyQuests()
 	end
 end
 
-T.ShowFrame()
-
 function Events:QUEST_TURNED_IN(questID, xpReward, moneyReward)
 	-- TODO for every quest, or only tracked ones?
 	C_ChatInfo.SendAddonMessage(addonName, "Q|COMPLETE "..questID, "PARTY")
+end
+
+if UnitInAnyGroup("player") then
+	T.ShowFrame()
 end
 
 ------------------------------------------------------
@@ -434,7 +434,11 @@ function Events:GROUP_ROSTER_UPDATE()
 	if UnitLeadsAnyGroup("player") then
 		T.AutoSetPartySymbols()
 	end
-	
+	if UnitInAnyGroup("player") then
+		T.ShowFrame()
+	else
+		T.Frame:Hide()
+	end
 	T.PushAllPartyQuests()
 end
 
