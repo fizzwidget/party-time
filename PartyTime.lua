@@ -224,9 +224,13 @@ function T.ShowFrame()
 	if not T.Frame then
 		T.MakeFrame()
 	end
-	
-	-- TODO? don't include oneself in the list (but keep it for now for testing)
-	local units = {"player", "party1", "party2", "party3", "party4"}
+	local settings = _G[addonName .. "_Settings"]
+
+	-- setting to include self in list
+	local units = {"party1", "party2", "party3", "party4"}
+	if settings and settings.ShowSelf then
+		tinsert(units, 1, "player")
+	end
 	
 	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, "Party Quests", NORMAL_FONT_COLOR, false)
@@ -234,7 +238,6 @@ function T.ShowFrame()
 	
 	-- order dependency: this runs before Settings.lua
 	-- TODO same default value in multiple places is sad
-	local settings = _G[addonName .. "_Settings"]
 	local frameSize = settings and settings.FrameSize or 1.0 
 	T.Frame:SetScale(frameSize)
 
@@ -313,13 +316,14 @@ function T.ShowFrame()
 	T.Frame:Show()
 end
 
-local LINE_TYPE_QUEST = 17
 local LINE_TYPE_PLAYER = 18
 local LINE_TYPE_OBJECTIVE = 8
 
 function ProcessPartyProgress(questID)
-	local omitTitle = false
-	local ignoreActivePlayer = false
+	local settings = _G[addonName .. "_Settings"]
+	
+	local omitTitle = true
+	local ignoreActivePlayer = not (settings and settings.ShowSelf)
 	local data = C_TooltipInfo.GetQuestPartyProgress(questID, omitTitle, ignoreActivePlayer)
 	
 	-- TODO: is this what we want to report for quests we're not on?
@@ -335,10 +339,7 @@ function ProcessPartyProgress(questID)
 	
 	for key, line in pairs(data.lines) do
 		if type(key) == "number" then 
-			if line.type == LINE_TYPE_QUEST then
-				-- we should always have exactly one quest header, right?
-				-- in that case, nothing to do here
-			elseif line.type == LINE_TYPE_PLAYER then
+			if line.type == LINE_TYPE_PLAYER then
 				currentPlayer = line.leftText
 			elseif line.type == LINE_TYPE_OBJECTIVE then
 				-- TODO does this one need localization format/pattern support?
