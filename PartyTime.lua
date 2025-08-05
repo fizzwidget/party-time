@@ -326,8 +326,7 @@ function ProcessPartyProgress(questID)
 	local ignoreActivePlayer = not (settings and settings.ShowSelf)
 	local data = C_TooltipInfo.GetQuestPartyProgress(questID, omitTitle, ignoreActivePlayer)
 	
-	-- TODO: is this what we want to report for quests we're not on?
-	if not data then return end
+	if not data then return nil end
 	
 	local processed = {}
 	processed.playersOnQuest = {}
