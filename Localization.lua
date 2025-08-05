@@ -19,6 +19,8 @@ S.Autoapply = "Automatically set markers"
 T.Autoapply = "Sets the first available marker for unknown players in your party"
 S.FrameSize = "Party Quests frame scale"
 T.FrameSize = "Shrinks or grows the list of party quest objectives/status"
+S.ShowSelf = "Show own quest progress"
+T.ShowSelf = "Show your own status on tracked quests in the tracking frame"
 
 ------------------------------------------------------
 

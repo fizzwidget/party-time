@@ -30,6 +30,7 @@ function T.SetupSettings(settings)
 	settings:Checkbox("Autoapply", true)
 	local default, min, max, step = 1.0, 0.25, 2.0, 0.05
 	settings:Slider("FrameSize", default, min, max, step, FormatPercentage)
+	settings:Checkbox("ShowSelf", true)
 end
 
 if not _G[addonName.."_SavedPresets"] then
