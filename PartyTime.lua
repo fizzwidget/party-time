@@ -127,6 +127,9 @@ SLASH_PARTYQUEST1 = "/pq"
 SlashCmdList["PARTYQUEST"] = function(text)
 	if text == "clear" then
 		wipe(T.TrackedQuests)
+	elseif text == "done" then
+		local remove, onlyComplete = true, true
+		T.PushAllPartyQuests(remove, onlyComplete)
 	elseif text == "test" then
 		for id in pairs(T.TrackedQuests) do
 			print(id, C_QuestLog.GetTitleForQuestID(id))
@@ -377,9 +380,15 @@ function T.PushPartyQuest(questID, remove)
 	end
 end
 
-function T.PushAllPartyQuests()
+function T.PushAllPartyQuests(remove, onlyComplete)
 	for id in pairs(T.TrackedQuests) do
-		T.PushPartyQuest(id)
+		if remove and onlyComplete then
+			if  C_QuestLog.IsQuestFlaggedCompleted(id) then
+				T.PushPartyQuest(id, remove)
+			end
+		else
+			T.PushPartyQuest(id, remove)
+		end
 	end
 end
 
