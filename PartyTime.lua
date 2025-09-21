@@ -397,7 +397,33 @@ function Events:QUEST_TURNED_IN(questID, xpReward, moneyReward)
 	C_ChatInfo.SendAddonMessage(addonName, "Q|COMPLETE "..questID, "PARTY")
 end
 
+function Events:QUEST_DETAIL()
+	if UnitInAnyGroup("player") then
+		if not T.AcceptQuestCheckbox then
+			T.AcceptQuestCheckbox = CreateFrame("CheckButton", nil, QuestFrameDetailPanel, "UICheckButtonTemplate") -- TODO actual template
+			T.AcceptQuestCheckbox:SetPoint("LEFT", QuestFrameAcceptButton, "RIGHT", 2, -1)
+			T.AcceptQuestCheckbox:SetSize(24, 24)
+			T.AcceptQuestCheckbox.Text:SetText("Party Quest")
+			T.AcceptQuestCheckbox:SetScript("OnClick", function(self)
+				T.Settings.TrackOnAccept = self:GetChecked()
+			end)
+		end	
+		T.AcceptQuestCheckbox:Show()
+		T.AcceptQuestCheckbox:SetChecked(T.Settings.TrackOnAccept)
+	elseif T.AcceptQuestCheckbox then
+		T.AcceptQuestCheckbox:Hide()
+	end
+end
+
+function Events:QUEST_ACCEPTED(questID)
+	if T.Settings.TrackOnAccept and UnitInAnyGroup("player")
+	and C_QuestInfoSystem.GetQuestClassification(questID) ~= Enum.QuestClassification.WorldQuest then
+		T.PushPartyQuest(questID)
+	end
+end
+
 if UnitInAnyGroup("player") then
+	-- print("load")
 	T.ShowFrame()
 end
 
@@ -445,6 +471,7 @@ function Events:GROUP_ROSTER_UPDATE()
 		T.AutoSetPartySymbols()
 	end
 	if UnitInAnyGroup("player") then
+		-- print("GROUP_ROSTER_UPDATE")
 		T.ShowFrame()
 	else
 		T.Frame:Hide()
