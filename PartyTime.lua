@@ -417,7 +417,10 @@ end
 
 function Events:QUEST_ACCEPTED(questID)
 	if T.Settings.TrackOnAccept and UnitInAnyGroup("player")
-	and C_QuestInfoSystem.GetQuestClassification(questID) ~= Enum.QuestClassification.WorldQuest then
+	and C_QuestInfoSystem.GetQuestClassification(questID) ~= Enum.QuestClassification.WorldQuest 
+	and C_QuestInfoSystem.GetQuestClassification(questID) ~= Enum.QuestClassification.BonusObjective 
+	and C_QuestInfoSystem.GetQuestClassification(questID) ~= Enum.QuestClassification.Threat 
+	then
 		T.PushPartyQuest(questID)
 	end
 end
