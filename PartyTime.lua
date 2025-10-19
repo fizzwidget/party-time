@@ -410,18 +410,16 @@ function Events:QUEST_DETAIL()
 		end	
 		T.AcceptQuestCheckbox:Show()
 		T.AcceptQuestCheckbox:SetChecked(T.Settings.TrackOnAccept)
+		T.AutoTrackQuestID = GetQuestID()
 	elseif T.AcceptQuestCheckbox then
 		T.AcceptQuestCheckbox:Hide()
 	end
 end
 
 function Events:QUEST_ACCEPTED(questID)
-	if T.Settings.TrackOnAccept and UnitInAnyGroup("player")
-	and C_QuestInfoSystem.GetQuestClassification(questID) ~= Enum.QuestClassification.WorldQuest 
-	and C_QuestInfoSystem.GetQuestClassification(questID) ~= Enum.QuestClassification.BonusObjective 
-	and C_QuestInfoSystem.GetQuestClassification(questID) ~= Enum.QuestClassification.Threat 
-	then
+	if T.Settings.TrackOnAccept and UnitInAnyGroup("player") and questID == T.AutoTrackQuestID then
 		T.PushPartyQuest(questID)
+		T.AutoTrackQuestID = nil
 	end
 end
 
