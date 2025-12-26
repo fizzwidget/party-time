@@ -268,7 +268,7 @@ function T.ShowFrame()
 			local membersWithoutQuest = {}
 			for _, unit in pairs(units) do
 				local unitName = UnitName(unit)
-				if unitName then
+				if UnitIsPlayer(unit) then
 					if not UnitIsVisible(unitName) then
 						tinsert(membersOnQuest, ORANGE_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
 						tinsert(membersWithoutQuest, ORANGE_FONT_COLOR:WrapTextInColorCode(UnitName(unit)))
