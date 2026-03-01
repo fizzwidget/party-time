@@ -26,8 +26,6 @@ local Events = T.EventHandlers
 ------------------------------------------------------
 
 function T.SetupSettings(settings)
-	settings:Checkbox("Memory", true)
-	settings:Checkbox("Autoapply", true)
 	local default, min, max, step = 1.0, 0.25, 2.0, 0.05
 	settings:Slider("FrameSize", default, min, max, step, FormatPercentage)
 	settings:Checkbox("ShowSelf", true)
@@ -437,40 +435,12 @@ local function MarkerFromIndex(index)
 	return C_ChatInfo.ReplaceIconAndGroupExpressions(("{rt%d}"):format(index))
 end
 
--- set saved markers (if any) for party members
-function T.AutoSetPartySymbols()
-	local units = {"player", "party1", "party2", "party3", "party4"}
-	local unitMarkers = {}
-	local nextFreeMarker = 0
-	for _, unit in pairs(units) do
-		if UnitExists(unit) then
-			local preset = T.SavedPresets[UnitName(unit)]
-			if preset and T.Settings.Memory then
-				T.TrySetRaidTarget(unit, preset)
-				unitMarkers[preset] = unit
-			elseif T.Settings.Autoapply then
-				CancelNextSave = true
-				repeat
-					nextFreeMarker = nextFreeMarker + 1
-					-- mod gets us range 0...7, we want 1...8
-					if nextFreeMarker > NUM_RAID_MARKERS then
-						nextFreeMarker = 1
-					end
-				until not unitMarkers[nextFreeMarker]
-				T.TrySetRaidTarget(unit, nextFreeMarker)
-			end
-		end
-	end
-end
 function T.TrySetRaidTarget(unit, index)
 	if GetRaidTargetIndex(unit) == index then return end
 	SetRaidTarget(unit, index)
 end
 
 function Events:GROUP_ROSTER_UPDATE()
-	if UnitLeadsAnyGroup("player") then
-		T.AutoSetPartySymbols()
-	end
 	if UnitInAnyGroup("player") then
 		-- print("GROUP_ROSTER_UPDATE")
 		T.ShowFrame()
@@ -484,13 +454,20 @@ end
 function T.SetRaidTarget(unit, index)
 	if UnitIsPlayer(unit) and UnitPlayerOrPetInParty(unit) then
 		if not CancelNextSave and T.Settings.RememberMenuMarkers then
-			--print("saving", MarkerFromIndex(index), "for", UnitName(unit))
+			-- print("saving", MarkerFromIndex(index), "for", UnitName(unit))
 			T.SavedPresets[UnitName(unit)] = index
 		end
 		CancelNextSave = false
 	end
 end
 hooksecurefunc("SetRaidTarget", T.SetRaidTarget)
+
+local menuActionButton = CreateFrame("Button", nil, nil, "InsecureActionButtonTemplate")
+menuActionButton:SetAttribute("pressAndHoldAction", 1)
+menuActionButton:RegisterForClicks("LeftButtonUp")
+menuActionButton:SetPropagateMouseClicks(true)
+menuActionButton:SetPropagateMouseMotion(true)
+menuActionButton:Hide()
 
 local function partyMenu(owner, rootDescription, contextData)
 	local function IsSelected()
@@ -502,6 +479,31 @@ local function partyMenu(owner, rootDescription, contextData)
 	rootDescription:CreateDivider();
 	rootDescription:CreateTitle("PartyTime");
 	rootDescription:CreateCheckbox("Remember Target Marker", IsSelected, SetSelected)
+	
+	local element = rootDescription:CreateButton("Apply Party Markers", function() end)
+	element:HookOnEnter(function(frame)
+		local macrotext = ""
+		local units = {"player", "party1", "party2", "party3", "party4"}
+		for _, unit in pairs(units) do
+			local name = UnitName(unit)
+			local index = T.SavedPresets[name]
+			if index then
+				macrotext = macrotext .. ("/tm [@%s] %d\n"):format(unit, index)
+			end
+		end
+		menuActionButton:SetAttribute("type", "macro")
+		menuActionButton:SetAttribute("typerelease", "macro")
+		menuActionButton:SetAttribute("macrotext", macrotext)
+		menuActionButton:SetParent(frame)
+		menuActionButton:SetAllPoints(frame)
+		menuActionButton:SetFrameStrata("TOOLTIP")
+		menuActionButton:Show()
+	end)
+	element:HookOnLeave(function()
+		menuActionButton:Hide()
+		menuActionButton:SetParent(nil)
+	end)
+
 end
 
 Menu.ModifyMenu("MENU_UNIT_SELF", partyMenu)
