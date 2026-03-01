@@ -199,7 +199,8 @@ hooksecurefunc(CampaignQuestObjectiveTracker, "OnBlockHeaderLeave", clearClicked
 
 function T.MakeFrame()
 	T.Frame = CreateFrame("GameTooltip", addonName.."_Tooltip", UIParent, "GameTooltipTemplate")
-	
+	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
+
 	T.Frame.CloseButton = CreateFrame("Button", nil, T.Frame, "UIPanelCloseButtonNoScripts")
 	T.Frame.CloseButton:SetScript("OnClick", function() T.Frame:Hide() end)
 	T.Frame.CloseButton:SetPoint("TOPRIGHT")
@@ -236,7 +237,6 @@ function T.ShowFrame()
 		tinsert(units, 1, "player")
 	end
 	
-	T.Frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
 	GameTooltip_SetTitle(T.Frame, "Party Quests", NORMAL_FONT_COLOR, false)
 	T.Frame:SetMinimumWidth(T.Frame.TextLeft1:GetWidth() + 2 + T.Frame.CloseButton:GetWidth())
 	
